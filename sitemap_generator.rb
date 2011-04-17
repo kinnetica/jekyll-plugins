@@ -86,7 +86,7 @@ module Jekyll
       sitemap = REXML::Document.new << REXML::XMLDecl.new("1.0", "UTF-8")
 
       urlset = REXML::Element.new "urlset"
-      urlset.add_attribute("xlmns", 
+      urlset.add_attribute("xmlns", 
         "http://www.sitemaps.org/schemas/sitemap/0.9")
 
       site.pages.each do |page|
