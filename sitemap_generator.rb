@@ -35,7 +35,7 @@ module Jekyll
     attr_accessor :name
 
     def full_path_to_source
-      return File.join(@base, @name)
+      File.join(@base, @name)
     end
   end
 
@@ -43,13 +43,13 @@ module Jekyll
     attr_accessor :name
 
     def full_path_to_source
-      return File.join(@base, @dir, @name)
+      File.join(@base, @dir, @name)
     end
   end
 
   class Layout
     def full_path_to_source
-      return File.join(@base, @name)
+      File.join(@base, @name)
     end
   end
 
@@ -61,7 +61,7 @@ module Jekyll
       rescue
       end
       
-      return true
+      true
     end
   end
 
@@ -141,7 +141,7 @@ module Jekyll
         url.add_element(priority)
       end
 
-      return url
+      url
     end
 
     # Get URL location of page or post 
@@ -156,7 +156,8 @@ module Jekyll
       else
         loc.text = MY_URL
       end
-      return loc
+      
+      loc
     end
 
     # Fill lastmod XML element with the last modified date for the page or post.
@@ -167,7 +168,8 @@ module Jekyll
       path = page_or_post.full_path_to_source
       date = File.mtime(path)
       lastmod.text = find_latest_date(date, site, page_or_post)
-      return lastmod
+      
+      lastmod
     end
 
     # Go through the page/post and any implemented layouts and get the latest
@@ -186,14 +188,14 @@ module Jekyll
         layout = layouts[layout.data["layout"]]
       end
 
-      return latest_date.iso8601
+      latest_date.iso8601
     end
 
     # Is the page or post listed as something we want to exclude?
     #
     # Returns boolean
     def excluded?(name)
-      return EXCLUDED_FILES.include? name
+      EXCLUDED_FILES.include? name
     end
 
   end
