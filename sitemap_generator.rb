@@ -1,10 +1,10 @@
-# Sitemap Generator is a Jekyll plugin that generated a sitemap.xml file
+# Sitemap Generator is a Jekyll plugin that generates a sitemap.xml file
 #
 # How To Use: 
 #   1.) Copy File Into _plugins/ folder within your Jekyll project
 #   2.) Change MY_URL to reflect your domain name
-#   2.) Run Jekyll: jekyll --server --auto
-#   3.) sitemap.xml should be included in _site/ folder
+#   3.) Run Jekyll: jekyll --server --auto
+#   4.) sitemap.xml should be included in _site/ folder
 #
 # Customizations:
 #   1.) If there are any files you don't want included in the sitemap, add them
@@ -12,7 +12,7 @@
 #       file.
 #   2.) If you want to include the optional changefreq and priority attributes,
 #       simply include custom variables in the YAML Front Matter of that file.
-#       The names of these variables are defined below in the
+#       The names of these custom variables are defined below in the
 #       CHANGE_FREQUENCY_CUSTOM_VARIABLE_NAME and PRIORITY_CUSTOM_VARIABLE_NAME
 #       constants.
 # 
