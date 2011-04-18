@@ -149,7 +149,13 @@ module Jekyll
     # Returns the location of the page or post
     def fill_location(path)
       loc = REXML::Element.new "loc"
-      loc.text = "#{MY_URL}#{path}"
+      
+      # Avoid displaying trailing /index.html in the path
+      if (path != "/index.html")
+        loc.text = "#{MY_URL}#{path}"
+      else
+        loc.text = MY_URL
+      end
       return loc
     end
 
