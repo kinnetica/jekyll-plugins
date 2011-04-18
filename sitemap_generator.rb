@@ -186,7 +186,7 @@ module Jekyll
         layout = layouts[layout.data["layout"]]
       end
 
-      return latest_date.strftime("%Y-%m-%d")
+      return latest_date.strftime("%Y-%m-%dT%H:%M:%S%Z")
     end
 
     # Is the page or post listed as something we want to exclude?
