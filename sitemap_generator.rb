@@ -34,14 +34,14 @@ require 'rexml/document'
 module Jekyll
 
   # Change MY_URL to reflect the site you are using
-  MY_URL = "http://www.kinnetica.com"
+  MY_URL = "http://www.mysite.com"
   
   # Change SITEMAP_FILE_NAME if you would like your sitemap file
   # to be called something else
   SITEMAP_FILE_NAME = "sitemap.xml"
   
   # Any files to exclude from being included in the sitemap.xml
-  EXCLUDED_FILES = ["atom.xml"]
+  EXCLUDED_FILES = []
   
   # Custom variable names for changefreq and priority elements
   #
