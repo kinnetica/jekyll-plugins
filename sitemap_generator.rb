@@ -1,10 +1,11 @@
 # Sitemap.xml Generator is a Jekyll plugin that generates a sitemap.xml file by 
 # traversing all of the available posts and pages.
+# pke: modified to use site.config['sitemap']['url'] instead of MY_URL
 #
 # How To Use: 
 #   1.) Copy source file into your _plugins folder within your Jekyll project.
-#   2.) Change MY_URL to reflect your domain name.
-#   3.) Change SITEMAP_FILE_NAME if you want your sitemap to be called something
+#   2.) Set url or sitemap: url to reflect your domain name.
+#   3.) Set sitemap: filename if you want your sitemap to be called something
 #       other than sitemap.xml.
 #   4.) Change the PAGES_INCLUDE_POSTS list to include any pages that are looping 
 #       through your posts (e.g. "index.html", "archive.html", etc.). This will 
@@ -65,8 +66,8 @@ module Jekyll
       File.join(@base, @name)
     end
 
-    def location_on_server
-      "#{MY_URL}#{url}"
+    def location_on_server(my_url)
+      "#{my_url}#{url}"
     end
   end
 
@@ -77,8 +78,8 @@ module Jekyll
       File.join(@base, @dir, @name)
     end
 
-    def location_on_server
-      location = "#{MY_URL}#{@dir}#{url}"
+    def location_on_server(my_url)
+      location = "#{my_url}#{@dir}#{url}"
       location.gsub(/index.html$/, "")
     end
   end
@@ -123,14 +124,16 @@ module Jekyll
       sitemap.add_element(urlset)
 
       # File I/O: create sitemap.xml file and write out pretty-printed XML
-      file = File.new(File.join(site.dest, SITEMAP_FILE_NAME), "w")
+      filename = site.config['sitemap']['filename'] if site.config['sitemap']
+      filename ||= SITEMAP_FILE_NAME
+      file = File.new(File.join(site.dest, filename), "w")
       formatter = REXML::Formatters::Pretty.new(4)
       formatter.compact = true
       formatter.write(sitemap, file)
       file.close
 
       # Keep the sitemap.xml file from being cleaned by Jekyll
-      site.static_files << Jekyll::SitemapFile.new(site, site.dest, "/", SITEMAP_FILE_NAME)
+      site.static_files << Jekyll::SitemapFile.new(site, site.dest, "/", filename)
     end
 
     # Create url elements for all the posts and find the date of the latest one
@@ -175,7 +178,7 @@ module Jekyll
     def fill_url(site, page_or_post)
       url = REXML::Element.new "url"
 
-      loc = fill_location(page_or_post)
+      loc = fill_location(site, page_or_post)
       url.add_element(loc)
 
       lastmod = fill_last_modified(site, page_or_post)
@@ -211,9 +214,11 @@ module Jekyll
     # Get URL location of page or post 
     #
     # Returns the location of the page or post
-    def fill_location(page_or_post)
+    def fill_location(site, page_or_post)
       loc = REXML::Element.new "loc"
-      loc.text = page_or_post.location_on_server
+      url = site.config['sitemap']['url'] if site.config['sitemap']
+      url ||= site.config['url'] || MY_URL
+      loc.text = page_or_post.location_on_server(url)
 
       loc
     end
