@@ -51,7 +51,9 @@ module Jekyll
 
   # Any files that include posts, so that when a new post is added, the last
   # modified date of these pages should take that into account
-  PAGES_INCLUDE_POSTS = ["index.html"]
+  # The relative path of the file should be used, for exmaple /index.html
+  # for your homepage
+  PAGES_INCLUDE_POSTS = ["/index.html", "/notebook/index.md"]
 
   # Custom variable names for changefreq and priority elements
   # These names are used within the YAML Front Matter of pages or posts
@@ -64,6 +66,10 @@ module Jekyll
 
     def full_path_to_source
       File.join(@base, @name)
+    end
+    
+    def path_to_source
+      File.join(@name)
     end
 
     def location_on_server(my_url)
@@ -246,7 +252,7 @@ module Jekyll
         lastmod.text = latest_date.iso8601
       else
         # This is a page
-        if posts_included?(page_or_post.name)
+        if posts_included?(page_or_post.path_to_source)
           # We want to take into account the last post date
           final_date = greater_date(latest_date, @last_modified_post_date)
           lastmod.text = final_date.iso8601
