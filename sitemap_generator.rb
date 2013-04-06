@@ -1,35 +1,11 @@
 # Sitemap.xml Generator is a Jekyll plugin that generates a sitemap.xml file by 
 # traversing all of the available posts and pages.
-# pke: modified to use site.config['sitemap']['url'] instead of MY_URL
-#
-# How To Use: 
-#   1.) Copy source file into your _plugins folder within your Jekyll project.
-#   2.) Set url or sitemap: url to reflect your domain name.
-#   3.) Set sitemap: filename if you want your sitemap to be called something
-#       other than sitemap.xml.
-#   4.) Change the PAGES_INCLUDE_POSTS list to include any pages that are looping 
-#       through your posts (e.g. "index.html", "archive.html", etc.). This will 
-#       ensure that right after you make a new post, the last modified date will 
-#       be updated to reflect the new post.
-#   5.) Run Jekyll: jekyll --server to re-generate your site.
-#   6.) A sitemap.xml should be included in your _site folder.
-#
-# Customizations:
-#   1.) If there are any files you don't want included in the sitemap, add them 
-#       to the EXCLUDED_FILES list. The name should match the name of the source 
-#       file.
-#   2.) If you want to include the optional changefreq and priority attributes,
-#       simply include custom variables in the YAML Front Matter of that file.
-#       The names of these custom variables are defined below in the
-#       CHANGE_FREQUENCY_CUSTOM_VARIABLE_NAME and PRIORITY_CUSTOM_VARIABLE_NAME
-#       constants.
 # 
-# Notes:
-#   1.) The last modified date is determined by the latest from the following:
-#       system modified date of the page or post, system modified date of
-#       included layout, system modified date of included layout within that
-#       layout, ... 
-#
+# See readme file for documenation
+# 
+# Updated to use config file for settings by Daniel Groves
+# Site: http://danielgroves.net
+# 
 # Author: Michael Levin
 # Site: http://www.kinnetica.com
 # Distributed Under A Creative Commons License
@@ -38,29 +14,6 @@
 require 'rexml/document'
 
 module Jekyll
-
-  # Change MY_URL to reflect the site you are using
-  MY_URL = "http://www.mysite.com"
-
-  # Change SITEMAP_FILE_NAME if you would like your sitemap file
-  # to be called something else
-  SITEMAP_FILE_NAME = "sitemap.xml"
-
-  # Any files to exclude from being included in the sitemap.xml. Use the 
-  # relative path, for example /feed/index.xml
-  EXCLUDED_FILES = ["/feed/index.xml"]
-
-  # Any files that include posts, so that when a new post is added, the last
-  # modified date of these pages should take that into account
-  # The relative path of the file should be used, for exmaple /index.html
-  # for your homepage
-  PAGES_INCLUDE_POSTS = ["/index.html", "/notebook/index.md"]
-
-  # Custom variable names for changefreq and priority elements
-  # These names are used within the YAML Front Matter of pages or posts
-  # for which you want to include these properties
-  CHANGE_FREQUENCY_CUSTOM_VARIABLE_NAME = "change_frequency"
-  PRIORITY_CUSTOM_VARIABLE_NAME = "priority"
 
   class Post
     attr_accessor :name
@@ -139,8 +92,7 @@ module Jekyll
       Dir::mkdir(site.dest) if !File.directory? site.dest
 
       # File I/O: create sitemap.xml file and write out pretty-printed XML
-      filename = site.config['sitemap']['filename'] if site.config['sitemap']
-      filename ||= SITEMAP_FILE_NAME
+      filename = site.config['sitemap']['file']
       file = File.new(File.join(site.dest, filename), "w")
       formatter = REXML::Formatters::Pretty.new(4)
       formatter.compact = true
@@ -157,7 +109,7 @@ module Jekyll
     def fill_posts(site, urlset)
       last_modified_date = nil
       site.posts.each do |post|
-        if !excluded?(post.name)
+        if !excluded?(site, post.name)
           url = fill_url(site, post)
           urlset.add_element(url)
         end
@@ -176,7 +128,7 @@ module Jekyll
     # Returns last_modified_date of index page
     def fill_pages(site, urlset)
       site.pages.each do |page|
-        if !excluded?(page.path_to_source)
+        if !excluded?(site, page.path_to_source)
           path = page.full_path_to_source
           if File.exists?(path)
             url = fill_url(site, page)
@@ -199,10 +151,10 @@ module Jekyll
       lastmod = fill_last_modified(site, page_or_post)
       url.add_element(lastmod) if lastmod
 
-      if (page_or_post.data[CHANGE_FREQUENCY_CUSTOM_VARIABLE_NAME])
+      if (page_or_post.data[site.config['sitemap']['change_frequency_name']])
         change_frequency = 
-          page_or_post.data[CHANGE_FREQUENCY_CUSTOM_VARIABLE_NAME].downcase
-
+          page_or_post.data[site.config['sitemap']['change_frequency_name']].downcase
+          
         if (valid_change_frequency?(change_frequency))
           changefreq = REXML::Element.new "changefreq"
           changefreq.text = change_frequency
@@ -212,11 +164,11 @@ module Jekyll
         end
       end
 
-      if (page_or_post.data[PRIORITY_CUSTOM_VARIABLE_NAME])
-        priority_value = page_or_post.data[PRIORITY_CUSTOM_VARIABLE_NAME]
+      if (page_or_post.data[site.config['sitemap']['priority_name']])
+        priority_value = page_or_post.data[site.config['sitemap']['priority_name']]
         if valid_priority?(priority_value)
           priority = REXML::Element.new "priority"
-          priority.text = page_or_post.data[PRIORITY_CUSTOM_VARIABLE_NAME]
+          priority.text = page_or_post.data[site.config['sitemap']['priority_name']]
           url.add_element(priority)
         else
           puts "ERROR: Invalid Priority In #{page_or_post.name}"
@@ -231,8 +183,7 @@ module Jekyll
     # Returns the location of the page or post
     def fill_location(site, page_or_post)
       loc = REXML::Element.new "loc"
-      url = site.config['sitemap']['url'] if site.config['sitemap']
-      url ||= site.config['url'] || MY_URL
+      url = site.config['url']
       loc.text = page_or_post.location_on_server(url)
 
       loc
@@ -253,7 +204,7 @@ module Jekyll
         lastmod.text = latest_date.iso8601
       else
         # This is a page
-        if posts_included?(page_or_post.path_to_source)
+        if posts_included?(site, page_or_post.path_to_source)
           # We want to take into account the last post date
           final_date = greater_date(latest_date, @last_modified_post_date)
           lastmod.text = final_date.iso8601
@@ -297,12 +248,12 @@ module Jekyll
     # Is the page or post listed as something we want to exclude?
     #
     # Returns boolean
-    def excluded?(name)
-      EXCLUDED_FILES.include? name
+    def excluded?(site, name)
+      site.config['sitemap']['exclude'].include? name
     end
 
-    def posts_included?(name)
-      PAGES_INCLUDE_POSTS.include? name
+    def posts_included?(site, name)
+      site.config['sitemap']['include_posts'].include? name
     end
 
     # Is the change frequency value provided valid according to the spec
