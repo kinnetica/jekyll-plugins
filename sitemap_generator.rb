@@ -46,7 +46,8 @@ module Jekyll
   # to be called something else
   SITEMAP_FILE_NAME = "sitemap.xml"
 
-  # Any files to exclude from being included in the sitemap.xml. Use the relative path, for example /feed/index.xml
+  # Any files to exclude from being included in the sitemap.xml. Use the 
+  # relative path, for example /feed/index.xml
   EXCLUDED_FILES = ["/feed/index.xml"]
 
   # Any files that include posts, so that when a new post is added, the last
