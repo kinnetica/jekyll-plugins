@@ -46,8 +46,8 @@ module Jekyll
   # to be called something else
   SITEMAP_FILE_NAME = "sitemap.xml"
 
-  # Any files to exclude from being included in the sitemap.xml
-  EXCLUDED_FILES = ["atom.xml"]
+  # Any files to exclude from being included in the sitemap.xml. Use the relative path, for example /feed/index.xml
+  EXCLUDED_FILES = ["/feed/index.xml"]
 
   # Any files that include posts, so that when a new post is added, the last
   # modified date of these pages should take that into account
@@ -77,12 +77,17 @@ module Jekyll
     def full_path_to_source
       File.join(@base, @dir, @name)
     end
+    
+    def path_to_source
+      File.join(@dir, @name)
+    end
 
     def location_on_server(my_url)
       location = "#{my_url}#{@dir}#{url}"
       location.gsub(/index.html$/, "")
     end
   end
+
 
   class Layout
     def full_path_to_source
@@ -164,7 +169,7 @@ module Jekyll
     # Returns last_modified_date of index page
     def fill_pages(site, urlset)
       site.pages.each do |page|
-        if !excluded?(page.name)
+        if !excluded?(page.path_to_source)
           path = page.full_path_to_source
           if File.exists?(path)
             url = fill_url(site, page)
