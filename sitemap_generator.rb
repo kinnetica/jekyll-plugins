@@ -43,7 +43,7 @@ module Jekyll
     end
 
     def location_on_server(my_url)
-      location = "#{my_url}#{@dir}#{url}"
+      location = "#{my_url}#{url}"
       location.gsub(/index.html$/, "")
     end
   end
@@ -69,6 +69,13 @@ module Jekyll
 
   class SitemapGenerator < Generator
 
+    # Config defaults
+    SITEMAP_FILE_NAME = "sitemap.xml"
+    CHANGE_FREQUENCY_NAME = "change_frequency"
+    PRIORITY_NAME = "priority"
+    EXCLUDE = ["atom.xml", "feed.xml", "feed/index.xml"]
+    INCLUDE_POSTS = ["index.html"] 
+
     # Valid values allowed by sitemap.xml spec for change frequencies
     VALID_CHANGE_FREQUENCY_VALUES = ["always", "hourly", "daily", "weekly",
       "monthly", "yearly", "never"] 
@@ -77,6 +84,15 @@ module Jekyll
     #
     # Returns nothing
     def generate(site)
+      # Configuration
+      sitemap_config = site.config['sitemap'] || {}
+      @config = {}
+      @config['filename'] = sitemap_config['filename'] || SITEMAP_FILE_NAME
+      @config['change_frequency_name'] = sitemap_config['change_frequency_name'] || CHANGE_FREQUENCY_NAME
+      @config['priority_name'] = sitemap_config['priority_name'] || PRIORITY_NAME
+      @config['exclude'] = sitemap_config['exclude'] || EXCLUDE
+      @config['include_posts'] = sitemap_config['include_posts'] || INCLUDE_POSTS
+
       sitemap = REXML::Document.new << REXML::XMLDecl.new("1.0", "UTF-8")
 
       urlset = REXML::Element.new "urlset"
@@ -92,7 +108,7 @@ module Jekyll
       Dir::mkdir(site.dest) if !File.directory? site.dest
 
       # File I/O: create sitemap.xml file and write out pretty-printed XML
-      filename = site.config['sitemap']['file']
+      filename = @config['filename']
       file = File.new(File.join(site.dest, filename), "w")
       formatter = REXML::Formatters::Pretty.new(4)
       formatter.compact = true
@@ -151,9 +167,11 @@ module Jekyll
       lastmod = fill_last_modified(site, page_or_post)
       url.add_element(lastmod) if lastmod
 
-      if (page_or_post.data[site.config['sitemap']['change_frequency_name']])
+
+
+      if (page_or_post.data[@config['change_frequency_name']])
         change_frequency = 
-          page_or_post.data[site.config['sitemap']['change_frequency_name']].downcase
+          page_or_post.data[@config['change_frequency_name']].downcase
           
         if (valid_change_frequency?(change_frequency))
           changefreq = REXML::Element.new "changefreq"
@@ -164,11 +182,11 @@ module Jekyll
         end
       end
 
-      if (page_or_post.data[site.config['sitemap']['priority_name']])
-        priority_value = page_or_post.data[site.config['sitemap']['priority_name']]
+      if (page_or_post.data[@config['priority_name']])
+        priority_value = page_or_post.data[@config['priority_name']]
         if valid_priority?(priority_value)
           priority = REXML::Element.new "priority"
-          priority.text = page_or_post.data[site.config['sitemap']['priority_name']]
+          priority.text = page_or_post.data[@config['priority_name']]
           url.add_element(priority)
         else
           puts "ERROR: Invalid Priority In #{page_or_post.name}"
@@ -249,11 +267,11 @@ module Jekyll
     #
     # Returns boolean
     def excluded?(site, name)
-      site.config['sitemap']['exclude'].include? name
+      @config['exclude'].include? name
     end
 
     def posts_included?(site, name)
-      site.config['sitemap']['include_posts'].include? name
+      @config['include_posts'].include? name
     end
 
     # Is the change frequency value provided valid according to the spec
