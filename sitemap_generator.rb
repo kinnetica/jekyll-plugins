@@ -70,12 +70,12 @@ module Jekyll
   class SitemapGenerator < Generator
 
     # Config defaults
-    SITEMAP_FILE_NAME = "sitemap.xml"
+    SITEMAP_FILE_NAME = "/sitemap.xml"
+    EXCLUDE = ["/atom.xml", "/feed.xml", "/feed/index.xml"]
+    INCLUDE_POSTS = ["/index.html"] 
     CHANGE_FREQUENCY_NAME = "change_frequency"
     PRIORITY_NAME = "priority"
-    EXCLUDE = ["atom.xml", "feed.xml", "feed/index.xml"]
-    INCLUDE_POSTS = ["index.html"] 
-
+    
     # Valid values allowed by sitemap.xml spec for change frequencies
     VALID_CHANGE_FREQUENCY_VALUES = ["always", "hourly", "daily", "weekly",
       "monthly", "yearly", "never"] 
