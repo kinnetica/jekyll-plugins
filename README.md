@@ -7,7 +7,8 @@ How To Use:
 -----------
 1. Copy file into your _plugins folder within your Jekyll project.
 2. Copy the following base configuration into your config file:
-```
+
+```yaml
 sitemap:
     file: /sitemap.xml
     exclude:
@@ -18,6 +19,7 @@ sitemap:
     change_frequency_name: "change_frequency"
     priority_name: "priority"
 ```
+
 2. Ensure url is set in your config file (for example `url: http://danielgroves.net`)
 3. Change `sitemap: file:` if you want your sitemap to be called something other than sitemap.xml.
 4. Change the `sitemap: exclude:` list to include any pages that you don't want in the sitemap. 
