@@ -17,13 +17,13 @@ Configuration defaults:
 
 ```yaml
 sitemap:
-    file: "sitemap.xml"
+    file: "/sitemap.xml"
     exclude:
-        - "atom.xml"
-        - "feed.xml"
-        - "feed/index.xml"
+        - "/atom.xml"
+        - "/feed.xml"
+        - "/feed/index.xml"
     include_posts:
-        - "index.html"
+        - "/index.html"
     change_frequency_name: "change_frequency"
     priority_name: "priority"
 ```
