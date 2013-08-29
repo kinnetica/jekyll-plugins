@@ -11,7 +11,7 @@
 #       through your posts (e.g. "index.html", "archive.html", etc.). This will 
 #       ensure that right after you make a new post, the last modified date will 
 #       be updated to reflect the new post.
-#   5.) Run Jekyll: jekyll --server to re-generate your site.
+#   5.) Run Jekyll: jekyll serve to re-generate your site.
 #   6.) A sitemap.xml should be included in your _site folder.
 #
 # Customizations:

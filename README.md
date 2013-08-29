@@ -9,7 +9,7 @@ How To Use:
 2. Change MY_URL to reflect your domain name.
 3. Change SITEMAP_FILE_NAME if you want your sitemap to be called something other than sitemap.xml.
 4. Change the PAGES_INCLUDE_POSTS list to include any pages that are looping through your posts (e.g. "index.html", "archive.html", etc.). This will ensure that right after you make a new post, the last modified date will be updated to reflect the new post.
-5. Run Jekyll: jekyll --server to re-generate your site.
+5. Run Jekyll: `jekyll serve` to re-generate your site.
 6. A sitemap.xml should be included in your _site folder.
 
 Customizations:
