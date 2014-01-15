@@ -1,6 +1,6 @@
 # Sitemap.xml Generator is a Jekyll plugin that generates a sitemap.xml file by 
 # traversing all of the available posts and pages.
-# pke: modified to use site.config['sitemap']['url'] instead of MY_URL
+# pke: modified to use site.config['sitemap']['url'] 
 #
 # How To Use: 
 #   1.) Copy source file into your _plugins folder within your Jekyll project.
@@ -39,15 +39,12 @@ require 'rexml/document'
 
 module Jekyll
 
-  # Change MY_URL to reflect the site you are using
-  MY_URL = "http://www.mysite.com"
-
   # Change SITEMAP_FILE_NAME if you would like your sitemap file
   # to be called something else
   SITEMAP_FILE_NAME = "sitemap.xml"
 
   # Any files to exclude from being included in the sitemap.xml
-  EXCLUDED_FILES = ["atom.xml"]
+  EXCLUDED_FILES = ["atom.xml", "404.html"]
 
   # Any files that include posts, so that when a new post is added, the last
   # modified date of these pages should take that into account
@@ -117,6 +114,8 @@ module Jekyll
       urlset = REXML::Element.new "urlset"
       urlset.add_attribute("xmlns", 
         "http://www.sitemaps.org/schemas/sitemap/0.9")
+      urlset.add_attribute("xmlns:video", 
+        "http://www.google.com/schemas/sitemap-video/1.1")
 
       @last_modified_post_date = fill_posts(site, urlset)
       fill_pages(site, urlset)
@@ -211,6 +210,11 @@ module Jekyll
         end
       end
 
+      if (page_or_post.data["meta"] && page_or_post.data["meta"]["video"])
+        video = fill_video(page_or_post.data)
+        url.add_element(video)
+      end
+
       url
     end
 
@@ -220,12 +224,43 @@ module Jekyll
     def fill_location(site, page_or_post)
       loc = REXML::Element.new "loc"
       url = site.config['sitemap']['url'] if site.config['sitemap']
-      url ||= site.config['url'] || MY_URL
+      url ||= site.config['url']
       loc.text = page_or_post.location_on_server(url)
 
       loc
     end
 
+    # http://support.google.com/webmasters/bin/answer.py?hl=en&answer=80472#1
+    def fill_video(page_or_post)
+      meta = page_or_post["meta"]["video"]
+
+      video = REXML::Element.new "video:video"
+
+      title = REXML::Element.new "video:title"
+      title.text = page_or_post["title"] || ""
+      video.add_element(title)
+
+      desc = REXML::Element.new "video:description"
+      desc.text = page_or_post["description"] || ""
+      video.add_element(desc)
+
+      url = REXML::Element.new "video:player_loc"
+      url.text = meta["url"]
+      video.add_element(url)
+
+      thumb = REXML::Element.new "video:thumbnail_loc"
+      thumb.text = page_or_post["img"]
+      video.add_element(thumb)
+
+      raw_url = REXML::Element.new "video:content_loc"
+      raw_url.text = meta["url"]
+      video.add_element(raw_url)
+
+      # <video:tag>steak</video:tag> - keywords
+      
+      video
+    end
+   
     # Fill lastmod XML element with the last modified date for the page or post.
     #
     # Returns lastmod REXML::Element or nil
