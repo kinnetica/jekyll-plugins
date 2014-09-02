@@ -63,6 +63,7 @@ module Jekyll
   end
 
   class SitemapGenerator < Generator
+    priority :lowest
 
     # Config defaults
     SITEMAP_FILE_NAME = "/sitemap.xml"
