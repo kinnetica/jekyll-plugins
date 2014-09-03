@@ -289,7 +289,19 @@ module Jekyll
     end
 
     def posts_included?(name)
-      @config['include_posts'].include? name
+      @config['include_posts'].each do |entry|
+      
+      	begin
+      	  re = Regexp.new(entry)
+      	rescue
+      	  re = Regexp.new(Regexp.escape(entry))
+      	end
+      
+      	if re =~ name
+      	  return true
+      	end
+      	
+      end
     end
 
     # Is the change frequency value provided valid according to the spec
