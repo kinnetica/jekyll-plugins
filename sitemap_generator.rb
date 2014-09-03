@@ -260,10 +260,12 @@ module Jekyll
       else
         # This is a page
         if posts_included?(page_or_post.path_to_source)
+          $stdout.puts "Posts Included: #{page_or_post.url} last_modified: #{page_or_post.last_modified}"
           # We want to take into account the last post date
           final_date = greater_date(latest_date, @last_modified_post_date)
           lastmod.text = final_date.iso8601
         else
+          $stdout.puts "Posts NOT Included: #{page_or_post.url} last_modified: #{latest_date}"
           lastmod.text = latest_date.iso8601
         end
       end
@@ -289,19 +291,7 @@ module Jekyll
     end
 
     def posts_included?(name)
-      @config['include_posts'].each do |entry|
-      
-      	begin
-      	  re = Regexp.new(entry)
-      	rescue
-      	  re = Regexp.new(Regexp.escape(entry))
-      	end
-      
-      	if re =~ name
-      	  return true
-      	end
-      	
-      end
+      @config['include_posts'].include? name
     end
 
     # Is the change frequency value provided valid according to the spec
