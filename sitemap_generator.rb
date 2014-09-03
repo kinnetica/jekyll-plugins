@@ -49,6 +49,17 @@ module Jekyll
 
       latest_date
     end
+
+    # Which of the two dates is later
+    #
+    # Returns latest of two dates
+    def greater_date(date1, date2)
+      if (date1 >= date2) 
+        date1
+      else 
+        date2 
+      end
+    end
   end
 
   class Page
@@ -90,6 +101,18 @@ module Jekyll
 
       latest_date
     end
+
+    # Which of the two dates is later
+    #
+    # Returns latest of two dates
+    def greater_date(date1, date2)
+      if (date1 >= date2) 
+        date1
+      else 
+        date2 
+      end
+    end
+    
   end
 
 
@@ -101,6 +124,18 @@ module Jekyll
     def last_modified
       File.mtime self.full_path_to_source
     end
+
+    # Which of the two dates is later
+    #
+    # Returns latest of two dates
+    def greater_date(date1, date2)
+      if (date1 >= date2) 
+        date1
+      else 
+        date2 
+      end
+    end
+    
   end
 
   # Recover from strange exception when starting server without --auto
@@ -260,12 +295,10 @@ module Jekyll
       else
         # This is a page
         if posts_included?(page_or_post.path_to_source)
-          $stdout.puts "Posts Included: #{page_or_post.url} last_modified: #{page_or_post.last_modified}"
           # We want to take into account the last post date
           final_date = greater_date(latest_date, @last_modified_post_date)
           lastmod.text = final_date.iso8601
         else
-          $stdout.puts "Posts NOT Included: #{page_or_post.url} last_modified: #{latest_date}"
           lastmod.text = latest_date.iso8601
         end
       end
