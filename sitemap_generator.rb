@@ -263,7 +263,7 @@ module Jekyll
     #
     # Returns boolean
     def excluded?(site, name)
-      @config['exclude'].include? name
+      @config['exclude'].any? { |i| name.index(i) == 0 }
     end
 
     def posts_included?(site, name)
