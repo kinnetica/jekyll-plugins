@@ -19,7 +19,7 @@ module Jekyll
     attr_accessor :name
 
     def path_to_source
-      File.join(@name)
+      File.join(*[@name].compact)
     end
 
     def location_on_server(my_url)
@@ -31,7 +31,7 @@ module Jekyll
     attr_accessor :name
 
     def path_to_source
-      File.join(@dir, @name)
+      File.join(*[@dir, @name].compact)
     end
 
     def location_on_server(my_url)
