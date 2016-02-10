@@ -10,8 +10,9 @@ How To Use:
 3. In your config file, change `sitemap: file:` if you want your sitemap to be called something other than sitemap.xml.
 4. Change the `sitemap: exclude:` list to exclude any pages that you don't want in the sitemap. 
 5. Change the `sitemap: include_posts:` list to include any pages that are looping through your posts (e.g. "/index.html", "/notebook/index.md", etc.). This will ensure that right after you make a new post, the last modified date will be updated to reflect the new post.
-6. Run Jekyll: `jekyll build` to re-generate your site.
-7. A `sitemap.xml` should be included in your _site folder.
+6. Set an optional sitemap: change_frequency_default: that will set the change frequency if you haven't specified one in your individual page.
+7. Run Jekyll: `jekyll build` to re-generate your site.
+8. A `sitemap.xml` should be included in your _site folder.
 
 Configuration defaults:
 
