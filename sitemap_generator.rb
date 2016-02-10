@@ -73,6 +73,7 @@ module Jekyll
       @config['priority_name'] = sitemap_config['priority_name'] || PRIORITY_NAME
       @config['exclude'] = sitemap_config['exclude'] || EXCLUDE
       @config['include_posts'] = sitemap_config['include_posts'] || INCLUDE_POSTS
+      @config['change_frequency_default'] = sitemap_config['change_frequency_default'].downcase if sitemap_config['change_frequency_default']
 
       sitemap = REXML::Document.new << REXML::XMLDecl.new("1.0", "UTF-8")
 
@@ -149,9 +150,9 @@ module Jekyll
 
 
 
-      if (page_or_post.data[@config['change_frequency_name']])
+      if (page_or_post.data[@config['change_frequency_name']] || @config['change_frequency_default'])
         change_frequency = 
-          page_or_post.data[@config['change_frequency_name']].downcase
+          (page_or_post.data[@config['change_frequency_name']] || @config['change_frequency_default']).downcase
           
         if (valid_change_frequency?(change_frequency))
           changefreq = REXML::Element.new "changefreq"
