@@ -26,11 +26,13 @@ sitemap:
         - "/index.html"
     change_frequency_name: "change_frequency"
     priority_name: "priority"
+    chomp_html: false
 ```
 
 Customizations:
 ---------------
 If you want to include the optional changefreq and priority attributes, simply include custom variables in the YAML Front Matter of those files. The names of these custom variables are defined in the config file as `sitemap: change_frequency_name:` and `sitemap: priority_name:`.
+Set `chomp_html: true` if you prefer url's without the .html suffix.
 
 Notes:
 ------

@@ -56,6 +56,7 @@ module Jekyll
     INCLUDE_POSTS = ["/index.html"] 
     CHANGE_FREQUENCY_NAME = "change_frequency"
     PRIORITY_NAME = "priority"
+    CHOMP_HTML = false
     
     # Valid values allowed by sitemap.xml spec for change frequencies
     VALID_CHANGE_FREQUENCY_VALUES = ["always", "hourly", "daily", "weekly",
@@ -73,6 +74,7 @@ module Jekyll
       @config['priority_name'] = sitemap_config['priority_name'] || PRIORITY_NAME
       @config['exclude'] = sitemap_config['exclude'] || EXCLUDE
       @config['include_posts'] = sitemap_config['include_posts'] || INCLUDE_POSTS
+      @config['chomp_html'] = sitemap_config['chomp_html'] || CHOMP_HTML
 
       sitemap = REXML::Document.new << REXML::XMLDecl.new("1.0", "UTF-8")
 
@@ -183,7 +185,9 @@ module Jekyll
       loc = REXML::Element.new "loc"
       url = site.config['url'] + site.config['baseurl']
       loc.text = page_or_post.location_on_server(url)
-
+      if (@config['chomp_html'] == true)
+        loc.text = loc.text.chomp(".html")
+      end
       loc
     end
 
