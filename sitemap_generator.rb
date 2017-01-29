@@ -73,6 +73,7 @@ module Jekyll
       @config['priority_name'] = sitemap_config['priority_name'] || PRIORITY_NAME
       @config['exclude'] = sitemap_config['exclude'] || EXCLUDE
       @config['include_posts'] = sitemap_config['include_posts'] || INCLUDE_POSTS
+      @config['change_frequency_default'] = sitemap_config['change_frequency_default'].downcase if sitemap_config['change_frequency_default']
 
       sitemap = REXML::Document.new << REXML::XMLDecl.new("1.0", "UTF-8")
 
@@ -126,7 +127,7 @@ module Jekyll
     def fill_pages(site, urlset)
       site.pages.each do |page|
         if !excluded?(site, page.path_to_source)
-          if File.exists?(page.path)
+          if File.exists?(File.join(site.source, page.path))
             url = fill_url(site, page)
             urlset.add_element(url)
           end
@@ -149,9 +150,9 @@ module Jekyll
 
 
 
-      if (page_or_post.data[@config['change_frequency_name']])
+      if (page_or_post.data[@config['change_frequency_name']] || @config['change_frequency_default'])
         change_frequency = 
-          page_or_post.data[@config['change_frequency_name']].downcase
+          (page_or_post.data[@config['change_frequency_name']] || @config['change_frequency_default']).downcase
           
         if (valid_change_frequency?(change_frequency))
           changefreq = REXML::Element.new "changefreq"
@@ -192,7 +193,7 @@ module Jekyll
     # Returns lastmod REXML::Element or nil
     def fill_last_modified(site, page_or_post)
       lastmod = REXML::Element.new "lastmod"
-      date = File.mtime(page_or_post.path)
+      date = File.mtime(File.join(site.source, page_or_post.path))
       latest_date = find_latest_date(date, site, page_or_post)
 
       if @last_modified_post_date == nil
