@@ -1,17 +1,18 @@
-# Sitemap.xml Generator is a Jekyll plugin that generates a sitemap.xml file by 
+# Sitemap.xml Generator is a Jekyll plugin that generates a sitemap.xml file by
 # traversing all of the available posts and pages.
-# 
+#
 # See readme file for documenation
-# 
+#
 # Updated to use config file for settings by Daniel Groves
 # Site: http://danielgroves.net
-# 
+#
 # Author: Michael Levin
 # Site: http://www.kinnetica.com
 # Distributed Under A Creative Commons License
 #   - http://creativecommons.org/licenses/by/3.0/
 require 'jekyll/document'
 require 'rexml/document'
+require 'pathname'
 
 module Jekyll
 
@@ -53,13 +54,13 @@ module Jekyll
     # Config defaults
     SITEMAP_FILE_NAME = "/sitemap.xml"
     EXCLUDE = ["/atom.xml", "/feed.xml", "/feed/index.xml"]
-    INCLUDE_POSTS = ["/index.html"] 
+    INCLUDE_POSTS = ["/index.html"]
     CHANGE_FREQUENCY_NAME = "change_frequency"
     PRIORITY_NAME = "priority"
-    
+
     # Valid values allowed by sitemap.xml spec for change frequencies
     VALID_CHANGE_FREQUENCY_VALUES = ["always", "hourly", "daily", "weekly",
-      "monthly", "yearly", "never"] 
+      "monthly", "yearly", "never"]
 
     # Goes through pages and posts and generates sitemap.xml file
     #
@@ -74,10 +75,13 @@ module Jekyll
       @config['exclude'] = sitemap_config['exclude'] || EXCLUDE
       @config['include_posts'] = sitemap_config['include_posts'] || INCLUDE_POSTS
 
+      # Hold onto the full source dir to calculate paths later
+      @source_dir = Pathname.new(site.source)
+
       sitemap = REXML::Document.new << REXML::XMLDecl.new("1.0", "UTF-8")
 
       urlset = REXML::Element.new "urlset"
-      urlset.add_attribute("xmlns", 
+      urlset.add_attribute("xmlns",
         "http://www.sitemaps.org/schemas/sitemap/0.9")
 
       @last_modified_post_date = fill_posts(site, urlset)
@@ -112,7 +116,7 @@ module Jekyll
           urlset.add_element(url)
         end
 
-        date = File.mtime(post.path)
+        date = (@source_dir + post.path).mtime
         last_modified_date = date if last_modified_date == nil or date > last_modified_date
       end
 
@@ -126,7 +130,7 @@ module Jekyll
     def fill_pages(site, urlset)
       site.pages.each do |page|
         if !excluded?(site, page.path_to_source)
-          if File.exists?(page.path)
+          if (@source_dir + page.path).exist?
             url = fill_url(site, page)
             urlset.add_element(url)
           end
@@ -150,9 +154,9 @@ module Jekyll
 
 
       if (page_or_post.data[@config['change_frequency_name']])
-        change_frequency = 
+        change_frequency =
           page_or_post.data[@config['change_frequency_name']].downcase
-          
+
         if (valid_change_frequency?(change_frequency))
           changefreq = REXML::Element.new "changefreq"
           changefreq.text = change_frequency
@@ -176,7 +180,7 @@ module Jekyll
       url
     end
 
-    # Get URL location of page or post 
+    # Get URL location of page or post
     #
     # Returns the location of the page or post
     def fill_location(site, page_or_post)
@@ -192,7 +196,7 @@ module Jekyll
     # Returns lastmod REXML::Element or nil
     def fill_last_modified(site, page_or_post)
       lastmod = REXML::Element.new "lastmod"
-      date = File.mtime(page_or_post.path)
+      date = (@source_dir + page_or_post.path).mtime
       latest_date = find_latest_date(date, site, page_or_post)
 
       if @last_modified_post_date == nil
@@ -219,7 +223,7 @@ module Jekyll
       layouts = site.layouts
       layout = layouts[page_or_post.data["layout"]]
       while layout
-        date = File.mtime(layout.path)
+        date = (@source_dir + layout.path).mtime
 
         latest_date = date if (date > latest_date)
 
@@ -233,10 +237,10 @@ module Jekyll
     #
     # Returns latest of two dates
     def greater_date(date1, date2)
-      if (date1 >= date2) 
+      if (date1 >= date2)
         date1
-      else 
-        date2 
+      else
+        date2
       end
     end
 
